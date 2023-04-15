@@ -1,8 +1,9 @@
 
 const express = require('express');
 
-const { connection } = require('mongoose');
+const { connection } = require('./db');
 
+require('dotenv').config()
 
 const app = express();
 
@@ -43,15 +44,12 @@ app.post('/register', async (req, res)=>{
         if(userPresent){
             return res.status(400).send({"msg":"user already exits"});
         }
-console.log(1);
-    const hashPassword = bcrypt.hashSync(pass, 5);
-console.log(2);
 
-    const newUser = new UserModel( { ...req.body, pass : hashPassword } );
-console.log(3);
+        const hashPassword = bcrypt.hashSync(pass, 5);
 
-    await newUser.save();
-console.log(4);
+        const newUser = new UserModel( { ...req.body, pass : hashPassword } );
+
+        await newUser.save();
 
         return res.status(200).send({msg:"register successfull", user : newUser})
 
@@ -83,7 +81,7 @@ app.post('/login', async (req, res)=>{
             })
         }
 
-        const token = jwt.sign( { email, role:userPresent.role }, process.env.secureKey, {expiresIn : "5m" })
+        const token = jwt.sign( { email, role:userPresent.role }, process.env.secureKey, {expiresIn : "50m" })
 
         res.cookie( "TOKEN", token, { maxAge : 1000*5*60 } )
 
